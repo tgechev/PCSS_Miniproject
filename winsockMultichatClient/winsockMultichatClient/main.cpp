@@ -9,12 +9,12 @@
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
-
+//Setting the buff-length and port to use.
 #define BUFLEN 512            
 #define DEFAULT_PORT "27015"
-
+//Added namespace so "std::" in front of variables isn't needed.
 using namespace std;
-
+//Creating variables for the client, giving each client a socket, ID, nickname and the option to recieve messages.
 struct clientStruct
 {
 	SOCKET socket;
@@ -143,19 +143,19 @@ int __cdecl main(int argc, char **argv) {
 
 		while (1)
 		{
-
 			getline(cin, sentMessage);
+
 			iResult = send(currentClient.socket, sentMessage.c_str(), strlen(sentMessage.c_str()), 0);
 
 			if (iResult <= 0)
 			{
-				cout << "send() failed: " << WSAGetLastError() << endl;
-				break;
+				continue;
 			}
 			else if (!strcmp(sentMessage.c_str(), "exit")) {
 				cout << "Exiting chat..." << endl;
 				break;
 			}
+			
 		}
 
 
@@ -168,6 +168,7 @@ int __cdecl main(int argc, char **argv) {
 
 	cout << "Shutting down socket..." << endl;
 	iResult = shutdown(currentClient.socket, SD_SEND);
+
 	if (iResult == SOCKET_ERROR) {
 		cout << "shutdown() failed with error: " << WSAGetLastError() << endl;
 		closesocket(currentClient.socket);

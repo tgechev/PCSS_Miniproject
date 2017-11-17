@@ -9,7 +9,7 @@
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
-#define DEFAULT_BUFLEN 512            
+#define BUFLEN 512            
 #define DEFAULT_PORT "27015"
 
 using namespace std;
@@ -19,9 +19,35 @@ struct clientStruct
 	SOCKET socket;
 	int id;
 	string nickname;
-	char receivedMessage[DEFAULT_BUFLEN];
+	char receivedMessage[BUFLEN];
 };
 
+int handleClient(clientStruct &newClient)
+{
+	while (1)
+	{
+		memset(newClient.receivedMessage, 0, BUFLEN);
+
+		if (newClient.socket != 0)
+		{
+			int iResult = recv(newClient.socket, newClient.receivedMessage, BUFLEN, 0);
+
+			if (iResult != SOCKET_ERROR)
+				cout << newClient.receivedMessage << endl;
+			else if (WSAGetLastError() == WSAECONNRESET)
+			{
+				cout << "The server has shut down!" << endl;
+				break;
+			}
+			else {
+				cout << "recv() failed: " << WSAGetLastError() << endl;
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
 
 int __cdecl main(int argc, char **argv) {
 

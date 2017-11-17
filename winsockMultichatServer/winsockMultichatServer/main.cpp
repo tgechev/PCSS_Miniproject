@@ -131,7 +131,7 @@ int main() {
 
 	while (1)
 	{
-
+		//Accept client socket
 		SOCKET incomingClient = INVALID_SOCKET;
 		incomingClient = accept(serverSocket, NULL, NULL);
 		//If the client has invalid socket continue accepting

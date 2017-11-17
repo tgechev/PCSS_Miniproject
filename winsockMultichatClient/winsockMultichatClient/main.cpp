@@ -6,6 +6,10 @@
 #include <sstream>
 #include <thread>
 
+/*Setting up pragma comments to tell the linker 
+  to add the libraries to the list of library dependencies.
+*/
+
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
@@ -52,6 +56,8 @@ int handleClient(clientStruct &newClient)
 
 int __cdecl main(int argc, char **argv) {
 
+	//Instantiating WSAData, clientStruct, iResult and string to be used later,
+	//string sentMessage will let the user input their message into console,
 	WSAData wsa_data;
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 	clientStruct currentClient = { INVALID_SOCKET, -1, "" };
@@ -133,14 +139,16 @@ int __cdecl main(int argc, char **argv) {
 	recv(currentClient.socket, currentClient.receivedMessage, BUFLEN, 0);
 	checkServerMessage = currentClient.receivedMessage;
 
+	//if statement which will allow the user to send messages
+	//only works if server is not full - if the amount of users is below 5
 	if (checkServerMessage != "Server is full")
 	{
 		currentClient.id = atoi(currentClient.receivedMessage);
-
+		//creating a thread with handleClient and currentClient
 		thread my_thread(handleClient, currentClient);
-
+		//input message showing only once in the program
 		cout << "Input message: " << endl;
-
+		//while loop which gets the message written by the user and sends it to server
 		while (1)
 		{
 
@@ -165,7 +173,7 @@ int __cdecl main(int argc, char **argv) {
 	else
 		cout << currentClient.receivedMessage << endl;
 
-
+	//closing of the socket
 	cout << "Shutting down socket..." << endl;
 	iResult = shutdown(currentClient.socket, SD_SEND);
 	if (iResult == SOCKET_ERROR) {

@@ -13,6 +13,7 @@
 #define DEFAULT_PORT "27015"
 #define BUFLEN 512
 
+//Declaring a struct representing a client
 struct clientStruct
 {
 	int id;
@@ -29,7 +30,6 @@ int main() {
 	std::string initMessage = "";
 
 	//Initialize Winsock
-
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
 	//Setup hints
@@ -45,23 +45,23 @@ int main() {
 	getaddrinfo(NULL, DEFAULT_PORT, &hints, &server);
 
 	//Create a listening socket for connecting to server
-
 	serverSocket = socket(server->ai_family, server->ai_socktype, server->ai_protocol);
 
-	//Assign an address to the server socket.
+	//Assign an address to the server socket
 	bind(serverSocket, server->ai_addr, (int)server->ai_addrlen);
 
-	//Listen for incoming connections.
+	//Listen for incoming connections
 	std::cout << "Awaiting for the client to connect" << std::endl;
 	listen(serverSocket, SOMAXCONN);
 
 
+ 
 	while (1)
 	{
-
+		//Accept client socket
 		SOCKET incomingClient = INVALID_SOCKET;
 		incomingClient = accept(serverSocket, NULL, NULL);
-
+		//If the client has invalid socket continue accepting
 		if (incomingClient == INVALID_SOCKET)
 			continue;
 	}

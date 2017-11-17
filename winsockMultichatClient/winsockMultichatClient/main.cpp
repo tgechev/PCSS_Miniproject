@@ -1,17 +1,14 @@
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-//Include necessary libs
 #include<iostream>
 #include <winsock2.h>
-#include <windows.h>
 #include <ws2tcpip.h>
-#include <iphlpapi.h>
 #include <stdio.h>
+#include <string>
+#include <sstream>
 
 
-#pragma comment(lib, "Ws2_32.lib")
+#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
@@ -24,9 +21,10 @@ int __cdecl main(int argc, char **argv) {
 
 	int recvbuflen = DEFAULT_BUFLEN;
 
-	char *sendbuf = "this is a test";
+	std::string myString;
+	char *sendbuf = "";
 	char recvbuf[DEFAULT_BUFLEN];
-
+	myString.assign(sendbuf, recvbuf);
 
 	WSADATA wsaData;
 
@@ -86,7 +84,10 @@ int __cdecl main(int argc, char **argv) {
 		return 1;
 	}
 
+	cout << "Please enter a valid sentence (with spaces):\n>";
+	getline(cin, myString);
 	
+
 	// Send an initial buffer
 	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
 	if (iResult == SOCKET_ERROR) {

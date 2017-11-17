@@ -17,6 +17,7 @@ struct clientStruct
 {
 	int id;
 	SOCKET socket;
+	std::string nickname;
 };
 
 const int MAX_CLIENTS = 5;
@@ -26,51 +27,52 @@ int handleClient(clientStruct &newClient, std::vector<clientStruct> &clientsArra
 {
 	std::string messageToSend = "";
 	char receivedMessage[BUFLEN] = "";
-//Session
-while (1)
-{
-	memset(receivedMessage, 0, BUFLEN);
 
-	if (newClient.socket != 0)
+	//Session
+	while (1)
 	{
-		int iResult = recv(newClient.socket, receivedMessage, BUFLEN, 0);
+		memset(receivedMessage, 0, BUFLEN);
 
-		if (iResult == SOCKET_ERROR || !strcmp(receivedMessage, "exit"))
+		if (newClient.socket != 0)
 		{
-			messageToSend = "Disconnected!";
+			int iResult = recv(newClient.socket, receivedMessage, BUFLEN, 0);
 
-			std::cout << messageToSend << std::endl;
+			if (iResult == SOCKET_ERROR || !strcmp(receivedMessage, "exit"))
+			{
+				messageToSend = newClient.nickname + " disconnected!";
 
-			closesocket(newClient.socket);
-			closesocket(clientsArray[newClient.id].socket);
-			clientsArray[newClient.id].socket = INVALID_SOCKET;
+				std::cout << messageToSend << std::endl;
 
-			//Broadcast the disconnection message to the other clients
+				closesocket(newClient.socket);
+				closesocket(clientsArray[newClient.id].socket);
+				clientsArray[newClient.id].socket = INVALID_SOCKET;
+
+				//Broadcast the disconnection message to the other clients
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (clientsArray[i].socket != INVALID_SOCKET)
+						iResult = send(clientsArray[i].socket, messageToSend.c_str(), strlen(messageToSend.c_str()), 0);
+				}
+
+				break;
+			}
+			else if (strcmp("", receivedMessage))
+				messageToSend = newClient.nickname + ": " + receivedMessage;
+			std::cout << messageToSend.c_str() << std::endl;
+
+			//Broadcast the sent message to the other clients
 			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
 				if (clientsArray[i].socket != INVALID_SOCKET)
-					iResult = send(clientsArray[i].socket, messageToSend.c_str(), strlen(messageToSend.c_str()), 0);
+					if (newClient.id != i)
+						iResult = send(clientsArray[i].socket, messageToSend.c_str(), strlen(messageToSend.c_str()), 0);
 			}
-
-			break;
 		}
-		else if (strcmp("", receivedMessage))
-			messageToSend = receivedMessage;
-		std::cout << messageToSend.c_str() << std::endl;
+	} //end while
 
-		//Broadcast the sent message to the other clients
-		for (int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if (clientsArray[i].socket != INVALID_SOCKET)
-				if (newClient.id != i)
-					iResult = send(clientsArray[i].socket, messageToSend.c_str(), strlen(messageToSend.c_str()), 0);
-		}
-	}
-} //end while
+	thread.detach();
 
-thread.detach();
-
-return 0;
+	return 0;
 }
 
 int main() {
@@ -83,6 +85,9 @@ int main() {
 	std::vector<clientStruct> clients(MAX_CLIENTS);
 
 	int tempId = -1;
+
+	//Buffer for the client's nickname
+	char clientNickname[BUFLEN];
 
 	std::thread clientThread[MAX_CLIENTS];
 
@@ -110,7 +115,7 @@ int main() {
 	bind(serverSocket, server->ai_addr, (int)server->ai_addrlen);
 
 	//Listen for incoming connections.
-	std::cout << "Awaiting for the client to connect" << std::endl;
+	std::cout << "Awaiting for clients to connect (up to 5)..." << std::endl;
 	listen(serverSocket, SOMAXCONN);
 
 	//Initialize list of clients
@@ -128,6 +133,12 @@ int main() {
 
 		if (incomingClient == INVALID_SOCKET)
 			continue;
+		else {
+
+			//Receive the nickname of the client
+			memset(clientNickname, 0, BUFLEN);
+			recv(incomingClient, clientNickname, BUFLEN, 0);
+		}
 
 
 
@@ -139,6 +150,7 @@ int main() {
 			{
 				clients[i].socket = incomingClient;
 				clients[i].id = i;
+				clients[i].nickname = clientNickname;
 				tempId = i;
 			}
 
@@ -147,6 +159,7 @@ int main() {
 		if (tempId != -1)
 		{
 			//Send the id to that client
+			std::cout << clients[tempId].nickname << " connected!" << std::endl;
 			initMessage = std::to_string(clients[tempId].id);
 			send(clients[tempId].socket, initMessage.c_str(), strlen(initMessage.c_str()), 0);
 

@@ -58,6 +58,7 @@ int __cdecl main(int argc, char **argv) {
 	string sentMessage = "";
 	string checkServerMessage;
 
+
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (iResult != 0) {
 		printf("WSAStartup failed: %d\n", iResult);
@@ -112,8 +113,6 @@ int __cdecl main(int argc, char **argv) {
 		return 1;
 	}
 
-	cout << "Please enter a valid sentence (with spaces):\n>";
-	getline(cin, myString);
 	
 
 	// Send an initial buffer

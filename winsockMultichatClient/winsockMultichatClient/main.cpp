@@ -26,24 +26,28 @@ struct clientStruct
 	string nickname;
 	char receivedMessage[BUFLEN];
 };
-
+//Create handleClient that uses the clientstruct above.
 int handleClient(clientStruct &newClient)
 {
 	while (1)
 	{
+		//Fills the receivemessage of the ClientStruct with the BuffLength.
 		memset(newClient.receivedMessage, 0, BUFLEN);
-
+		//The if-statement checks if there is anything in the client socket.
 		if (newClient.socket != 0)
 		{
+			//Sets the instantiated variable iResult to receive data from the socket. Recv is the function that retrieves the data.
 			int iResult = recv(newClient.socket, newClient.receivedMessage, BUFLEN, 0);
-
+			//The following if-statement looks if there is any errors. If there is not, it will show the received message.  
 			if (iResult != SOCKET_ERROR)
 				cout << newClient.receivedMessage << endl;
+			//If the error is the WSAECONNRESET-error (Force-close of network socket) then it will let you know that the server shut down.
 			else if (WSAGetLastError() == WSAECONNRESET)
 			{
 				cout << "The server has shut down!" << endl;
 				break;
 			}
+			//If it isn't a forced close error, it posts the error that is occurring.
 			else {
 				cout << "recv() failed: " << WSAGetLastError() << endl;
 				break;
@@ -64,12 +68,12 @@ int __cdecl main(int argc, char **argv) {
 	int iResult = 0;
 	string sentMessage = "";
 	string checkServerMessage;
-
+	//if it does not take 3 arguments, display the nickname that is defined in the command arguments.
 	if (argc != 3) {
 		printf("usage: %s server-name nickname (to be displayed in the chat)\n", argv[0]);
 		return 1;
 	}
-
+	//Prints the nickname to the program.
 	cout << "Entering chat with nickname: " << argv[2] << endl;
 
 	// Initialize Winsock

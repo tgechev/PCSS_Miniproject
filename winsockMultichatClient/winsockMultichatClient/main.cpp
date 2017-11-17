@@ -9,10 +9,10 @@
 /*Setting up pragma comments to tell the linker 
   to add the libraries to the list of library dependencies.
 */
-
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
+
 //Setting the buff-length and port to use.
 #define BUFLEN 512            
 #define DEFAULT_PORT "27015"
@@ -56,8 +56,9 @@ int handleClient(clientStruct &newClient)
 
 int __cdecl main(int argc, char **argv) {
 
-	//Instantiating WSAData, clientStruct, iResult and string to be used later,
+	//Instantiating WSAData, clientStruct, setting iResult to equal 0 and initializing string to be used later,
 	//string sentMessage will let the user input their message into console,
+	//string checkServerMessage will see what the server returned.
 	WSAData wsa_data;
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 	clientStruct currentClient = { INVALID_SOCKET, -1, "" };
@@ -176,7 +177,7 @@ int __cdecl main(int argc, char **argv) {
 	//closing of the socket
 	cout << "Shutting down socket..." << endl;
 	iResult = shutdown(currentClient.socket, SD_SEND);
-
+	//error catching
 	if (iResult == SOCKET_ERROR) {
 		cout << "shutdown() failed with error: " << WSAGetLastError() << endl;
 		closesocket(currentClient.socket);
@@ -184,7 +185,7 @@ int __cdecl main(int argc, char **argv) {
 
 		return 1;
 	}
-
+	//close and cleanup
 	closesocket(currentClient.socket);
 	WSACleanup();
 

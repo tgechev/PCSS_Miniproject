@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
+#include <thread>
 
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
@@ -132,19 +133,39 @@ int __cdecl main(int argc, char **argv) {
 	recv(currentClient.socket, currentClient.receivedMessage, BUFLEN, 0);
 	checkServerMessage = currentClient.receivedMessage;
 
-	// Send an initial buffer
-	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
-	if (iResult == SOCKET_ERROR) {
-		printf("send failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return 1;
+	if (checkServerMessage != "Server is full")
+	{
+		currentClient.id = atoi(currentClient.receivedMessage);
+
+		thread my_thread(handleClient, currentClient);
+
+		cout << "Input message: " << endl;
+
+		while (1)
+		{
+
+			getline(cin, sentMessage);
+			iResult = send(currentClient.socket, sentMessage.c_str(), strlen(sentMessage.c_str()), 0);
+
+			if (iResult <= 0)
+			{
+				cout << "send() failed: " << WSAGetLastError() << endl;
+				break;
+			}
+			else if (!strcmp(sentMessage.c_str(), "exit")) {
+				cout << "Exiting chat..." << endl;
+				break;
+			}
+		}
+
+
+		//Shutdown the connection since no more data will be sent
+		my_thread.detach();
 	}
+	else
+		cout << currentClient.receivedMessage << endl;
 
-	printf("Bytes Sent: %ld\n", iResult);
 
-	// shutdown the connection for sending since no more data will be sent
-	// the client can still use the ConnectSocket for receiving data
 	iResult = shutdown(ConnectSocket, SD_SEND);
 	if (iResult == SOCKET_ERROR) {
 		printf("shutdown failed: %d\n", WSAGetLastError());

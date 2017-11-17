@@ -58,6 +58,12 @@ int __cdecl main(int argc, char **argv) {
 	string sentMessage = "";
 	string checkServerMessage;
 
+	if (argc != 3) {
+		printf("usage: %s server-name nickname (to be displayed in the chat)\n", argv[0]);
+		return 1;
+	}
+
+	cout << "Entering chat with nickname: " << argv[2] << endl;
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsa_data);
@@ -118,6 +124,13 @@ int __cdecl main(int argc, char **argv) {
 	}
 
 	cout << "Successfully connected!" << endl;
+
+	//Send client nickname to server
+	send(currentClient.socket, argv[2], strlen(argv[2]), 0);
+
+	//Obtain id from server for this client;
+	recv(currentClient.socket, currentClient.receivedMessage, BUFLEN, 0);
+	checkServerMessage = currentClient.receivedMessage;
 
 	// Send an initial buffer
 	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);

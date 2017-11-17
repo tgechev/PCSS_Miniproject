@@ -1,3 +1,4 @@
+//Includes
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iostream>
@@ -5,11 +6,12 @@
 #include <thread>
 #include <vector>
 
-
+//Preload libraries
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
+//Define default port and buffer length
 #define DEFAULT_PORT "27015"
 #define BUFLEN 512
 
@@ -20,6 +22,7 @@ struct clientStruct
 	std::string nickname;
 };
 
+//Set max clients
 const int MAX_CLIENTS = 5;
 
 
@@ -89,6 +92,7 @@ int main() {
 	//Buffer for the client's nickname
 	char clientNickname[BUFLEN];
 
+	//Instantiate thread
 	std::thread clientThread[MAX_CLIENTS];
 
 	//Initialize Winsock

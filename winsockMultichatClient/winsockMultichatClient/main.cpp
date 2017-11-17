@@ -67,29 +67,42 @@ int __cdecl main(int argc, char **argv) {
 	cout << "Entering chat with nickname: " << argv[2] << endl;
 
 	// Initialize Winsock
+	//Winsock (Windows Sockets DLL) is intialized in order to be able to call Winsock functions
+	//Doing this also makes sure that Winsock is supported on the system
+
+	//Calls WSAStartup and return its value as an integer
+	//The if-statement is made to check for errors 
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (iResult != 0) {
 	cout << "WSAStartup() failed with error: " << iResult << endl;
 	return 1;
 	}
 
+	//The internet address family is unspecified, which means that either an IPv5 or IPv4 address can be returned
+	//The application requests the socket type to be a stream socket for the TCP protocol
 	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_family = AF_UNSPEC;			//unspecified add. family
+	hints.ai_socktype = SOCK_STREAM;		//socket type = stream
+	hints.ai_protocol = IPPROTO_TCP;		//TCP protocol
 
-	cout << "Connecting to server...\n";
+	//Output the text "connecting to server..." to the console window
+	cout << "Connecting to server...\n";	
 
+	//The following line of code calls the getaddrinfo function and requests the IP address for the server name passed on the command´line
+	//The TCP port on the server, which the client will connect to, is defined by DEFAULT_PORT as 27015
+	//The getaddrinfo function returns a integer value, which is checked for errors (if-statement)
 	// Resolve the server address and port
 	iResult = getaddrinfo(argv[1], DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 	cout << "getaddrinfo() failed with error: " << iResult << endl;
-	WSACleanup();
-
+	WSACleanup();					//WSACleanup is used to terminate the use of WS2_32 DLL
 	return 1;
 	}
 
+	//Creates a socket object called ConnectSocket
 	SOCKET ConnectSocket = INVALID_SOCKET;
+
+	//Attempt to connect to the first address returned by the call to getaddrinfo
 	ptr = result;
 
 	// Attempt to connect to an address until one succeeds
@@ -98,15 +111,18 @@ int __cdecl main(int argc, char **argv) {
 	// Create a SOCKET for connecting to server
 	currentClient.socket = socket(ptr->ai_family, ptr->ai_socktype,
 	ptr->ai_protocol);
+	
+	//Check for errors to ensure that the socket is a valid socket
 	if (currentClient.socket == INVALID_SOCKET) {
 	cout << "socket() failed with error: " << WSAGetLastError() << endl;
-	WSACleanup();
-
+	WSACleanup();				
 	return 1;
 	}
 
+	//Calls the connect function, passing the created socket and the sockaddrstructure as parameters
 	// Connect to server.
 	iResult = connect(currentClient.socket, ptr->ai_addr, (int)ptr->ai_addrlen);
+	//Checks for errors
 	if (iResult == SOCKET_ERROR) {
 	closesocket(currentClient.socket);
 	currentClient.socket = INVALID_SOCKET;
@@ -115,15 +131,16 @@ int __cdecl main(int argc, char **argv) {
 	break;
 	}
 
+	//Free the resources returned by getaddrinfo 
 	freeaddrinfo(result);
-
+	//Checks for errors 
 	if (currentClient.socket == INVALID_SOCKET) {
 	cout << "Unable to connect to server!" << endl;
 	WSACleanup();
-
 	return 1;
 	}
 
+	//If successfully connected the following message will be printed in the console window "Successfully connected!"
 	cout << "Successfully connected!" << endl;
 
 	//Send client nickname to server

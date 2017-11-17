@@ -5,16 +5,22 @@
 #include <string>
 #include <sstream>
 
-
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
-#define DEFAULT_BUFLEN 512
+#define DEFAULT_BUFLEN 512            
 #define DEFAULT_PORT "27015"
 
 using namespace std;
 
+struct clientStruct
+{
+	SOCKET socket;
+	int id;
+	string nickname;
+	char receivedMessage[DEFAULT_BUFLEN];
+};
 
 
 int __cdecl main(int argc, char **argv) {

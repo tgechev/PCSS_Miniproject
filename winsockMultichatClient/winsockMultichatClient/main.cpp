@@ -51,18 +51,14 @@ int handleClient(clientStruct &newClient)
 
 int __cdecl main(int argc, char **argv) {
 
-	int recvbuflen = DEFAULT_BUFLEN;
+	WSAData wsa_data;
+	struct addrinfo *result = NULL, *ptr = NULL, hints;
+	clientStruct currentClient = { INVALID_SOCKET, -1, "" };
+	int iResult = 0;
+	string sentMessage = "";
+	string checkServerMessage;
 
-	std::string myString;
-	char *sendbuf = "";
-	char recvbuf[DEFAULT_BUFLEN];
-	myString.assign(sendbuf, recvbuf);
-
-	WSADATA wsaData;
-
-	int iResult;
-
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (iResult != 0) {
 		printf("WSAStartup failed: %d\n", iResult);
 		return 1;

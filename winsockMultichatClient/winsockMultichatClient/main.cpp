@@ -166,34 +166,17 @@ int __cdecl main(int argc, char **argv) {
 		cout << currentClient.receivedMessage << endl;
 
 
-	iResult = shutdown(ConnectSocket, SD_SEND);
+	cout << "Shutting down socket..." << endl;
+	iResult = shutdown(currentClient.socket, SD_SEND);
 	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
+		cout << "shutdown() failed with error: " << WSAGetLastError() << endl;
+		closesocket(currentClient.socket);
 		WSACleanup();
+
 		return 1;
 	}
 
-	// Receive data until the server closes the connection
-	do {
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		if (iResult > 0)
-			printf("Bytes received: %d\n", iResult);
-		else if (iResult == 0)
-			printf("Connection closed\n");
-		else
-			printf("recv failed: %d\n", WSAGetLastError());
-	} while (iResult > 0);
-	
-	iResult = shutdown(ConnectSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return 1;
-	}
-
-	closesocket(ConnectSocket);
+	closesocket(currentClient.socket);
 	WSACleanup();
 
 	return 0;

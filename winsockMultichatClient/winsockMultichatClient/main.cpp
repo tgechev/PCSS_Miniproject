@@ -1,9 +1,7 @@
 #include<iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <stdio.h>
 #include <string>
-#include <sstream>
 #include <thread>
 
 /*Setting up pragma comments to tell the linker 
@@ -99,7 +97,7 @@ int __cdecl main(int argc, char **argv) {
 	//Output the text "connecting to server..." to the console window
 	cout << "Connecting to server...\n";	
 
-	//The following line of code calls the getaddrinfo function and requests the IP address for the server name passed on the command´line
+	//The following line of code calls the getaddrinfo function and requests the IP address for the server name passed on the commandÂ´line
 	//The TCP port on the server, which the client will connect to, is defined by DEFAULT_PORT as 27015
 	//The getaddrinfo function returns a integer value, which is checked for errors (if-statement)
 	// Resolve the server address and port

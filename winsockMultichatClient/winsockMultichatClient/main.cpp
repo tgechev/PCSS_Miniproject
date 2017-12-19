@@ -87,7 +87,7 @@ int __cdecl main(int argc, char **argv) {
 	return 1;
 	}
 
-	//The internet address family is unspecified, which means that either an IPv5 or IPv4 address can be returned
+	//The internet address family is unspecified, which means that either an IPv6 or IPv4 address can be returned
 	//The application requests the socket type to be a stream socket for the TCP protocol
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;			//unspecified add. family
